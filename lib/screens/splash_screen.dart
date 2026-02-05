@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
 import 'input_screen.dart';
+import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,28 +15,42 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkUser();
+    _checkUserFlow();
   }
 
-  Future<void> _checkUser() async {
+  Future<void> _checkUserFlow() async {
     await Future.delayed(const Duration(seconds: 2));
 
     final prefs = await SharedPreferences.getInstance();
-    final name = prefs.getString('name');
+
+    final bool loggedIn = prefs.getBool('loggedIn') ?? false;
+    final String? name = prefs.getString('name');
 
     if (!mounted) return;
 
-    if (name == null) {
+    // 🔐 Not logged in → Login screen
+    if (!loggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+      return;
+    }
+
+    // ✍️ Logged in but name missing → Input screen
+    if (name == null || name.isEmpty) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const InputScreen()),
       );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+      return;
     }
+
+    // 🏠 Logged in + name present → Home
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
   }
 
   @override

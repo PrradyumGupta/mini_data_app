@@ -1,12 +1,12 @@
 name: mini_data_app
-description: "A new Flutter project."
+description: A Flutter app demonstrating onboarding, login, local storage, and theme management.
 
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.6.2
+  sdk: ">=3.6.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -24,4 +24,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-

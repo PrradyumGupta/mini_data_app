@@ -3,10 +3,15 @@ import 'package:provider/provider.dart';
 import 'theme/theme_provider.dart';
 import 'screens/splash_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final themeProvider = ThemeProvider();
+  await themeProvider.loadTheme();
+
   runApp(
     ChangeNotifierProvider(
-      create: (_) => ThemeProvider()..loadTheme(),
+      create: (_) => themeProvider,
       child: const MyApp(),
     ),
   );
@@ -17,15 +22,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<ThemeProvider>();
+    final themeProvider = context.watch<ThemeProvider>();
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      themeMode: theme.themeMode,
+      themeMode: themeProvider.themeMode,
 
       theme: ThemeData(
         brightness: Brightness.light,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+        ),
         useMaterial3: true,
       ),
 

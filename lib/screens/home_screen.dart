@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'input_screen.dart';
+import 'login_screen.dart';
+import 'address_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -60,19 +62,34 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
+  /// Clears ONLY user data
   Future<void> _clearData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.remove('name');
+    await prefs.remove('addresses');
+
     setState(() => name = '');
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Data cleared 🧹'),
+        content: const Text('User data cleared 🧹'),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
       ),
+    );
+  }
+
+  /// Logout user
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('loggedIn', false);
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
     );
   }
 
@@ -120,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // 👤 Avatar (balanced)
+                      // 👤 Avatar
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(
@@ -135,10 +152,7 @@ class _HomeScreenState extends State<HomeScreen>
                         child: const CircleAvatar(
                           radius: 34,
                           backgroundColor: Colors.white,
-                          child: Text(
-                            '👋',
-                            style: TextStyle(fontSize: 28),
-                          ),
+                          child: Text('👋', style: TextStyle(fontSize: 28)),
                         ),
                       ),
 
@@ -164,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                       const SizedBox(height: 26),
 
-                      // ✏️ Edit button
+                      // ✏️ Edit Name
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
@@ -176,7 +190,6 @@ class _HomeScreenState extends State<HomeScreen>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF43CEA2),
                             padding: const EdgeInsets.symmetric(vertical: 14),
-                            elevation: 5,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
@@ -196,26 +209,69 @@ class _HomeScreenState extends State<HomeScreen>
 
                       const SizedBox(height: 14),
 
-                      // 🧹 Clear button
+                      // 📍 Manage Addresses (STEP 3)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.location_on_outlined),
+                          label: const Text(
+                            'Manage Addresses',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const AddressScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      // 🧹 Clear Data
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton.icon(
-                          icon: const Icon(Icons.delete_outline, size: 20),
+                          icon:
+                              const Icon(Icons.delete_outline, size: 20),
                           label: const Text(
                             'Clear Data',
                             style: TextStyle(fontSize: 18),
                           ),
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 14),
                             foregroundColor: Colors.redAccent,
+                            side: const BorderSide(color: Colors.redAccent),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
-                            side: const BorderSide(
-                              color: Colors.redAccent,
-                            ),
                           ),
                           onPressed: _clearData,
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // 🚪 Logout
+                      TextButton(
+                        onPressed: _logout,
+                        child: const Text(
+                          'Logout',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ],
